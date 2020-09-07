@@ -4,7 +4,7 @@
 2. 아래 코드를 매크로에 추가하고 실행
 
 ```
-Dim Ws As Worksheet
+  Dim Ws As Worksheet
   Dim ix As Integer, it As Integer
   Set Ws = Sheets("시트목록")
 
