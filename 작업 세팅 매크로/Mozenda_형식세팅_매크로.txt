@@ -1,0 +1,112 @@
+Sub Sheetlist()
+    Dim Ws As Worksheet
+    Dim ix As Integer, it As Integer
+    Set Ws = Sheets("시트목록")
+
+    With Ws
+     it = Worksheets.Count - 1
+     .Columns("A:B").EntireColumn.ClearContents
+     .Range("A1:B1") = Array("No", "시트명")
+     
+     For ix = 4 To it
+        .Cells(ix - 2, 1) = ix - 3
+        .Cells(ix - 2, 2) = Sheets(ix).Name
+    Next ix
+
+    .Columns("A:B").EntireColumn.AutoFit
+
+    End With
+    SheeRowCnt
+    
+End Sub
+
+Sub SheeRowCnt()
+
+sheetlen = ActiveWorkbook.Worksheets.Count - 1
+
+For i = 4 To sheetlen
+    Sheets(i).Activate
+    If ActiveSheet.Range("B2") <> "" Then
+        r = LastRow
+    Else: r = 6
+    End If
+    
+    Worksheets("시트목록").Select
+    Range("C1") = "데이터 수"
+    Range("C" & i - 2) = r - 6
+
+Next
+
+End Sub
+Function LastRow()
+    r = ActiveSheet.Range("B1048576").End(xlUp).Row
+    LastRow = r
+
+End Function
+Sub copy_paste()
+r = LastRow '각 시트 마지막 행
+
+If ActiveSheet.Range("B7") <> "" Then
+    Range("A7:O" & r).Copy '복사할 범위 지정
+    Worksheets("Combined").Select
+    
+    review_row = LastRow
+    
+    Range("A" & review_row + 1).Select '붙여넣을 범위 지정
+    ActiveSheet.Paste '붙여넣기 지정
+    Application.CutCopyMode = False
+Else: Exit Sub
+End If
+End Sub
+Sub Main_CopyPaste()
+Sheetlist
+
+sheetlen = ActiveWorkbook.Worksheets.Count - 1
+For i = 4 To sheetlen
+    Sheets(i).Activate
+    copy_paste
+Next
+
+
+End Sub
+
+Sub Main_Vlookup()
+Worksheets("Combined").Select
+r = LastRow
+
+'''1) P-S열 함수 넣기'''
+
+'P열 - SerialNO 참조 BM
+Range("P3").Formula = "=VLOOKUP(L3,[Hearable_Mozenda_old_data.xlsm]Master!$B$1:$E$5000,4,FALSE)"
+Set destRange = Range("P3:P" & r)
+Range("P3").AutoFill Destination:=destRange
+ 
+'Q열- Category
+Range("Q3").Formula = "=VLOOKUP(N3,'[Hearable_Mozenda_old_data.xlsm]합체!'!$D$3:$H$5000,4,FALSE)"
+Set destRange = Range("Q3:Q" & r)
+Range("Q3").AutoFill Destination:=destRange
+
+'R열- Serial No
+Range("R3").Formula = "=VLOOKUP(N3,'[Hearable_Mozenda_old_data.xlsm]합체!'!$D$3:$H$5000,5,FALSE)"
+Set destRange = Range("R3:R" & r)
+Range("R3").AutoFill Destination:=destRange
+
+'S열- Brand
+Range("S3").Formula = "=VLOOKUP(N3,'[Hearable_Mozenda_old_data.xlsm]합체!'!$D$3:$H$5000,2,FALSE)"
+Set destRange = Range("S3:S" & r)
+Range("S3").AutoFill Destination:=destRange
+
+'T열- Model
+Range("T3").Formula = "=VLOOKUP(N3,'[Hearable_Mozenda_old_data.xlsm]합체!'!$D$3:$H$5000,3,FALSE)"
+Set destRange = Range("T3:T" & r)
+Range("T3").AutoFill Destination:=destRange
+
+
+'U열- old_data 작업리뷰 일치 여부
+Range("U3").Formula = "=L3=R3"
+Set destRange = Range("U3:U" & r)
+Range("U3").AutoFill Destination:=destRange
+
+End Sub
+
+

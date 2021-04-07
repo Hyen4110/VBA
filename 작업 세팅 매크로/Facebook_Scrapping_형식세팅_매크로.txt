@@ -1,0 +1,101 @@
+Sub main()
+
+sheet_num = ActiveWorkbook.Worksheets.Count
+
+For i = 1 To sheet_num
+    Worksheets(i).Activate
+    
+    If ActiveSheet.Name <> "FB_IR" Then
+    Form_Setting
+    Else
+    End If
+    
+Next
+
+End Sub
+
+Function Rownum()
+
+    Dim lastRow As Long
+    lastRow = ActiveSheet.Range("A1048576").End(xlUp).Row
+    MsgBox "마지막 행: " & lastRow
+    Rownum = lastRow()
+    
+End Function
+
+Function ColNum()
+    Dim lastColumn As Long
+    lastColumn = ActiveSheet.Range("XFD5").End(xlToLeft).Column
+
+    ColNum = lastColumn
+
+End Function
+
+'Function ColNum()'
+'
+'    sheetnm = ActiveSheet.Name
+'    With ThisWorkbook.Worksheets(sheetnm)
+'        Dim endRow As Long ' 마지막행
+'        Dim Endcol As Long ' 마지막열
+'        endRow = .UsedRange.Rows.Count + .UsedRange.Row - 1
+'        Endcol = .UsedRange.Columns.Count + .UsedRange.Column - 1'
+'
+'    End With'
+'
+'    ColNum = Endcol
+'End Function
+
+
+Sub Form_Setting()
+    Dim Endcol As Long ' 마지막열
+    Dim msg1 As Integer
+    
+    Endcol = ColNum()
+    
+    'msg1 = MsgBox("마지막열" & Endcol, vbOKCancel, "확인 및 종료")
+
+    'If msg1 = vbCancel Then
+    '    Exit Sub
+    'End If
+    
+    '지난월+항목명+체크함수 3개 행을 복사해서 한칸씩 옆으로 옮겨붙이기
+    Range(Columns(Endcol - 2), Columns(Endcol)).Select
+    Selection.Copy
+    ActiveSheet.Columns(Endcol - 1).Select
+    ActiveSheet.Paste '붙여넣기 지정
+    Application.CutCopyMode = False
+    
+    '지난월 중복 복사된 열 값삭제
+    ActiveSheet.Columns(Endcol - 1).Select
+    Selection.ClearContents
+    Endcol = ColNum()
+    
+   'MsgBox "endcol" & Endcol
+    Range("A4").End(xlToRight).Select
+    ActiveCell.Offset(0, 1).Value = Year(Now) & "-" & Month(Now) & "-19"
+    
+    c = Range("A4").End(xlToRight).Column
+    last_month = c - 1
+    this_month = c
+    
+    For i = 5 To 96
+        If Cells(i, last_month) = 0 Then
+            Cells(i, this_month) = 0
+        
+        ElseIf Cells(i, last_month).Interior.Color = RGB(191, 191, 191) Then
+            Cells(i, last_month).Copy
+            Cells(i, this_month).Select
+            ActiveSheet.Paste
+        Else
+        End If
+        
+    Next
+    
+    
+    
+
+End Sub
+Sub count_sheet()
+     MsgBox "시트개수" & ActiveWorkbook.Worksheets.Count
+
+End Sub

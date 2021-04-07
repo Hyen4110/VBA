@@ -1,0 +1,114 @@
+Sub Sheetlist()
+    Dim Ws As Worksheet
+    Dim ix As Integer, it As Integer
+    Set Ws = Sheets("시트목록")
+
+    With Ws
+     it = Worksheets.Count
+     .Columns("A:B").EntireColumn.ClearContents
+     .Range("a1:b1") = Array("No", "시트명")
+     
+     For ix = 3 To it
+        .Cells(ix - 1, 1) = ix - 2
+        .Cells(ix - 1, 2) = Sheets(ix).Name
+    Next ix
+
+    .Columns("A:B").EntireColumn.AutoFit
+
+  End With
+
+End Sub
+
+Sub SheeRowCnt()
+
+sheetlen = ActiveWorkbook.Worksheets.Count
+
+For i = 3 To sheetlen
+    Sheets(i).Activate
+    If ActiveSheet.Range("E7") <> "" Then
+        r = LastRow
+    Else: r = 6
+    End If
+    
+    Worksheets("시트목록").Select
+    Range("C1") = "데이터 수"
+    Range("C" & i - 1) = r - 6
+
+Next
+
+End Sub
+Function LastRow()
+    r = ActiveSheet.Range("C1048576").End(xlUp).Row
+    LastRow = r
+
+End Function
+Sub copy_paste()
+r = LastRow '각 시트 마지막 행
+
+If ActiveSheet.Range("E7") <> "" Then
+    Range("A7:K" & r).Copy '복사할 범위 지정
+    Worksheets("dipa_review").Select
+    
+    review_row = LastRow
+    
+    Range("C" & review_row + 1).Select '붙여넣을 범위 지정
+    ActiveSheet.Paste '붙여넣기 지정
+    Application.CutCopyMode = False
+Else: Exit Sub
+End If
+End Sub
+Sub Main_CopyPaste()
+
+Sheetlist
+SheeRowCnt
+
+sheetlen = ActiveWorkbook.Worksheets.Count
+For i = 3 To sheetlen
+    Sheets(i).Activate
+    copy_paste
+Next
+
+End Sub
+
+Sub Main_Vlookup()
+Worksheets("dipa_review").Select
+
+'1) B열(일련번호) 생성
+r = LastRow
+For i = 3 To r
+    Range("B" & i) = i - 2
+Next
+
+'2) M열 클린
+Range("M3:M" & r).Clear
+
+'3) M-Q열 함수 넣기
+
+'M열
+Range("M3").Formula = "=VLOOKUP(K3,[Tablet_monthly_작업메뉴얼.xlsm]sm!$B:$C,2,FALSE)"
+Set destRange = Range("M3:M" & r)
+Range("M3").AutoFill Destination:=destRange
+ 
+'N열
+Range("N3").Formula = "=INDEX('[Tablet_monthly_작업메뉴얼.xlsm]old data'!$D:$D,MATCH(dipa_review!$G3,'[Tablet_monthly_작업메뉴얼.xlsm]old data'!$F:$F,0),1)"
+Set destRange = Range("N3:N" & r)
+Range("N3").AutoFill Destination:=destRange
+
+'O열
+Range("O3").Formula = "=VLOOKUP($G3,'[Tablet_monthly_작업메뉴얼.xlsm]old data'!$F:$J,5,0)"
+Set destRange = Range("O3:O" & r)
+Range("O3").AutoFill Destination:=destRange
+
+'P열
+Range("P3").Formula = "=O3=K3"
+Set destRange = Range("P3:P" & r)
+Range("P3").AutoFill Destination:=destRange
+
+'Q열
+Range("Q3").Formula = "=INDEX('[Tablet_monthly_작업메뉴얼.xlsm]old data'!$H:$H,MATCH(dipa_review!$G3,'[Tablet_monthly_작업메뉴얼.xlsm]old data'!$F:$F,0),1)"
+Set destRange = Range("Q3:Q" & r)
+Range("Q3").AutoFill Destination:=destRange
+
+End Sub
+
+
